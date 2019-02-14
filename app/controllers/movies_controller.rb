@@ -11,12 +11,26 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @movies = Movie.all
-    @all_ratings = @movies.sort_by{|x| x[:rating]}.map{|x| x.rating}.uniq
     
+    @all_ratings = Movie.all.sort_by{|x| x[:rating]}.map{|x| x.rating}.uniq
+    @selected_ratings = with_ratings
+    @selected_ratings.each do |rating|
+        params[:rating] = true
+    end
     
     if params[:sort]
       @movies = Movie.order(params[:sort])
+    else
+      @movies = Movie.where(:rating => @selected_ratings)
+    end
+  end
+  
+  # Takes an array pf ratings and return matched ones
+  def with_ratings
+    if params[:ratings]
+      params[:ratings].keys
+    else
+      @all_ratings
     end
   end
 
